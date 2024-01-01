@@ -14,7 +14,7 @@ export class CategoryService {
 
   async findAll() {
     const cats = await this.categoryModel.find();
-    return { data: cats, msg: `This action returns all category` };
+    return { data: cats };
   }
 
   findOne(id: number) {
