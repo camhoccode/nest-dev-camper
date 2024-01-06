@@ -1,8 +1,15 @@
-import { Module } from '@nestjs/common';
-import { CategoryService } from './category.service';
-import { CategoryController } from './category.controller';
+import {
+  MiddlewareConsumer,
+  Module,
+  NestModule,
+  RequestMethod,
+} from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { CategorySchema } from './schemas/category.schema';
+
+import { CategoryController } from './category.controller';
+import { CategoryService } from './category.service';
+import { CategorySchema, CatsModel } from './schemas/category.schema';
+import { AdvancedResultMiddleware } from 'src/middleware/advancedResult.middleware';
 
 @Module({
   imports: [
@@ -11,4 +18,12 @@ import { CategorySchema } from './schemas/category.schema';
   controllers: [CategoryController],
   providers: [CategoryService],
 })
-export class CategoryModule {}
+// export class CategoryModule {}
+export class CategoryModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(new AdvancedResultMiddleware().use(CatsModel)).forRoutes({
+      path: 'category',
+      method: RequestMethod.GET,
+    });
+  }
+}

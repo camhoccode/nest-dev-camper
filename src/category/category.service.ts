@@ -6,7 +6,7 @@ import { Model } from 'mongoose';
 
 @Injectable()
 export class CategoryService {
-  constructor(@InjectModel('Category') private categoryModel: Model<any>) {}
+  constructor(@InjectModel('Category') public categoryModel: Model<any>) {}
 
   create(createCategoryDto: CreateCategoryDto) {
     return 'This action adds a new category';
