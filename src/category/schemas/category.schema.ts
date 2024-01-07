@@ -1,10 +1,16 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import axios from 'axios';
 import mongoose, { HydratedDocument } from 'mongoose';
+import { nanoid } from 'nanoid';
+import slugify from 'slugify';
 
 export type CatsDocument = HydratedDocument<Category>;
 
 @Schema()
 export class Category {
+  @Prop({ type: String, default: () => nanoid() })
+  _id: mongoose.Types.ObjectId;
+
   @Prop({
     required: [true, 'Please add a name'],
     unique: true,
@@ -65,7 +71,7 @@ export class Category {
     zipcode: String,
     country: String,
   })
-  location: string;
+  location;
 
   @Prop({
     type: [String],
@@ -89,7 +95,7 @@ export class Category {
   averageRating: string;
 
   @Prop()
-  aaverageCost: number;
+  averageCost: number;
 
   @Prop({
     type: String,
@@ -124,7 +130,63 @@ export class Category {
 
   // @Prop({ type: mongoose.Schema.ObjectId, ref: 'User', required: true })
   // user: User;
+  // @Prop({ type: mongoose.Schema.ObjectId, ref: 'Tutorial', required: true })
+  // tutorial: Tutorial;
 }
 
 export const CategorySchema = SchemaFactory.createForClass(Category);
+
+// CategorySchema.pre('save', async function (next) {
+//   // create bootcamp slug from name
+//   this.slug = slugify(this.name, { lower: true });
+//   // geo coder and create location field
+//   const encodedAddress = encodeURIComponent(this.address);
+//   try {
+//     const response = await axios.get(
+//       `https://api.opencagedata.com/geocode/v1/json?q=${encodedAddress}&key=${process.env.GEOCODER_API_KEY}`,
+//     );
+//     // console.log("response", response.data.results[0].annotations);
+//     const loc = response.data.results[0];
+
+//     this.location = {
+//       type: 'Point',
+//       coordinates: [loc.geometry.lng, loc.geometry.lat],
+//       formattedAddress: loc.formatted,
+//       streetName: loc.components.road,
+//       streetNumber: loc.components.house_number,
+//       state: loc.components.state,
+//       zipCode: loc.components.postcode,
+//       city: loc.components.town,
+//       countryCode: loc.components.country_code,
+//       country: loc.components.country,
+//     };
+//   } catch (error) {
+//     console.log(error);
+//   }
+//   // do not save address in db
+//   this.address = undefined;
+//   next();
+// });
+
+// // cascade delete courses when bootcamp deleted
+// // CategorySchema.pre('deleteOne', async function (next) {
+// //   try {
+// //     console.log(`Courses being removed from bootcamp ${this._id} checking`);
+// //     await this.model('Course').deleteMany({
+// //       bootcamp: this._id,
+// //     });
+// //     next();
+// //   } catch (error) {
+// //     console.log(error);
+// //   }
+// // });
+
+// // reverse populate with virtuals
+// CategorySchema.virtual('tutorials', {
+//   ref: 'Tutorial',
+//   localField: '_id',
+//   foreignField: 'category',
+//   justOne: false,
+// });
+
 export const CatsModel = mongoose.model('categories', CategorySchema);

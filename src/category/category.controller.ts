@@ -1,11 +1,11 @@
 import { Model } from 'mongoose';
 
 import {
-  BadRequestException,
   Body,
   Controller,
   Delete,
   Get,
+  Inject,
   Param,
   Patch,
   Post,
@@ -17,14 +17,12 @@ import { InjectModel } from '@nestjs/mongoose';
 import { CategoryService } from './category.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
-import { Errors } from 'src/shared/errors.constant';
-import { CatsModel } from './schemas/category.schema';
 
 @Controller()
 export class CategoryController {
   constructor(
-    private readonly categoryService: CategoryService,
-    @InjectModel('Category') private categoryModel: Model<any>,
+    @Inject('CategoryService')
+    private readonly categoryService: CategoryService, // @InjectModel('Category') private categoryModel: Model<any>,
   ) {}
 
   @Post()
@@ -39,20 +37,17 @@ export class CategoryController {
   }
 
   @Get(':id')
-  async findOne(@Res() response, @Req() request) {
-    return this.categoryService.findOne(request.params.id);
+  async findOne(@Param() id: string) {
+    return this.categoryService.findOne(id);
   }
 
   @Patch(':id')
-  update(
-    @Param('id') id: string,
-    @Body() updateCategoryDto: UpdateCategoryDto,
-  ) {
-    return this.categoryService.update(+id, updateCategoryDto);
+  update(@Param('id') id, @Body() updateCategoryDto: UpdateCategoryDto) {
+    return this.categoryService.update(id, updateCategoryDto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.categoryService.remove(+id);
+    return this.categoryService.remove(id);
   }
 }

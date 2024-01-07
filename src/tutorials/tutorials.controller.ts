@@ -10,6 +10,8 @@ import {
 import { TutorialsService } from './tutorials.service';
 import { CreateTutorialDto } from './dto/create-tutorial.dto';
 import { UpdateTutorialDto } from './dto/update-tutorial.dto';
+import { PaginationParamDecorator } from 'src/decorators/pagination.decorator';
+import { IPagination } from 'src/shared/common.constants';
 
 @Controller()
 export class TutorialsController {
@@ -21,8 +23,9 @@ export class TutorialsController {
   }
 
   @Get()
-  findAll() {
-    return this.tutorialsService.findAll();
+  async findAll(@PaginationParamDecorator() pagination: IPagination) {
+    // console.log(pagination);
+    return this.tutorialsService.findAll(pagination);
   }
 
   @Get(':id')
