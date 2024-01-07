@@ -3,9 +3,9 @@ import { AppModule } from './app.module';
 import mongoose from 'mongoose';
 
 async function bootstrap() {
-  const conn = await mongoose.connect(process.env.MONGO_URI);
+  await mongoose.connect(process.env.MONGO_URI);
   console.log('Db connected');
   const app = await NestFactory.create(AppModule);
-  await app.listen(3000);
+  await app.listen(5000);
 }
 bootstrap();

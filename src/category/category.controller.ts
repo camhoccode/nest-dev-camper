@@ -1,4 +1,7 @@
+import { Model } from 'mongoose';
+
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -6,16 +9,23 @@ import {
   Param,
   Patch,
   Post,
+  Req,
   Res,
 } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
 
 import { CategoryService } from './category.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
+import { Errors } from 'src/shared/errors.constant';
+import { CatsModel } from './schemas/category.schema';
 
-@Controller('category')
+@Controller()
 export class CategoryController {
-  constructor(private readonly categoryService: CategoryService) {}
+  constructor(
+    private readonly categoryService: CategoryService,
+    @InjectModel('Category') private categoryModel: Model<any>,
+  ) {}
 
   @Post()
   create(@Body() createCategoryDto: CreateCategoryDto) {
@@ -29,8 +39,8 @@ export class CategoryController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.categoryService.findOne(+id);
+  async findOne(@Res() response, @Req() request) {
+    return this.categoryService.findOne(request.params.id);
   }
 
   @Patch(':id')

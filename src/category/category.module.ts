@@ -22,7 +22,7 @@ import { AdvancedResultMiddleware } from 'src/middleware/advancedResult.middlewa
 export class CategoryModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer.apply(new AdvancedResultMiddleware().use(CatsModel)).forRoutes({
-      path: 'category',
+      path: 'api/v1/category',
       method: RequestMethod.GET,
     });
   }

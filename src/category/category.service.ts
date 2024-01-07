@@ -1,31 +1,41 @@
-import { Injectable } from '@nestjs/common';
+import { Model } from 'mongoose';
+import { Errors } from 'src/shared/errors.constant';
+
+import { BadRequestException, Injectable } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { CatsModel } from './schemas/category.schema';
 
 @Injectable()
 export class CategoryService {
-  constructor(@InjectModel('Category') public categoryModel: Model<any>) {}
+  constructor(@InjectModel('Category') private categoryModel: Model<any>) {}
 
   create(createCategoryDto: CreateCategoryDto) {
     return 'This action adds a new category';
   }
 
   async findAll() {
-    const cats = await this.categoryModel.find();
-    return { data: cats };
+    // const cats = await this.categoryModel.find();
+    // return { data: cats };
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} category`;
+  async findOne(id: string) {
+    const cat = await this.categoryModel.findOne({ _id: id });
+    if (!cat) {
+      throw new BadRequestException(Errors.INVALID_CATEGORY_UUID);
+    }
+    return {
+      data: cat,
+    };
   }
 
-  update(id: number, updateCategoryDto: UpdateCategoryDto) {
+  async update(id: number, updateCategoryDto: UpdateCategoryDto) {
     return `This action updates a #${id} category`;
   }
 
-  remove(id: number) {
+  async remove(id: number) {
     return `This action removes a #${id} category`;
   }
 }
