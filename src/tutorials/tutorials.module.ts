@@ -2,11 +2,11 @@ import { Module } from '@nestjs/common';
 import { TutorialsService } from './tutorials.service';
 import { TutorialsController } from './tutorials.controller';
 import { MongooseModule } from '@nestjs/mongoose';
-import { TutirialSchema } from './schemas/tutotial.schema';
+import { TutorialSchema } from './schemas/tutotial.schema';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: 'tuts', schema: TutirialSchema }]),
+    MongooseModule.forFeature([{ name: 'tuts', schema: TutorialSchema }]),
   ],
   controllers: [TutorialsController],
   providers: [TutorialsService],

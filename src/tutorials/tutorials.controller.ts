@@ -29,8 +29,8 @@ export class TutorialsController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.tutorialsService.findOne(+id);
+  findOne(@Param() id: string) {
+    return this.tutorialsService.findOne(id);
   }
 
   @Patch(':id')
@@ -38,11 +38,11 @@ export class TutorialsController {
     @Param('id') id: string,
     @Body() updateTutorialDto: UpdateTutorialDto,
   ) {
-    return this.tutorialsService.update(+id, updateTutorialDto);
+    return this.tutorialsService.update(id, updateTutorialDto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.tutorialsService.remove(+id);
+    return this.tutorialsService.remove(id);
   }
 }
