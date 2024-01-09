@@ -24,6 +24,10 @@ import { UsersModule } from './users/users.module';
         path: 'api/v1/tutorials',
         module: TutorialsModule,
       },
+      {
+        path: 'api/v1/users',
+        module: UsersModule,
+      },
     ]),
     CategoryModule,
     TutorialsModule,

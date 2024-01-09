@@ -10,7 +10,6 @@ import {
   Req,
   Res,
 } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
 
 import { CategoryService } from './category.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
@@ -31,10 +30,7 @@ export class CategoryController {
   }
 
   @Get()
-  findAll(
-    // @Res() response,
-    @PaginationParamDecorator() pagination: IPagination,
-  ) {
+  findAll(@PaginationParamDecorator() pagination: IPagination) {
     // response.status(200).json(response.advanceResult);
     return this.categoryService.findAll(pagination);
   }
