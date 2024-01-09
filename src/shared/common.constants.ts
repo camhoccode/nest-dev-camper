@@ -1,6 +1,6 @@
 export interface IPagination {
   page: number;
-  perPage: number;
+  perpage: number;
   skip: number;
 }
 

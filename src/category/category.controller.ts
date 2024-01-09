@@ -1,5 +1,3 @@
-import { Model } from 'mongoose';
-
 import {
   Body,
   Controller,
@@ -17,6 +15,8 @@ import { InjectModel } from '@nestjs/mongoose';
 import { CategoryService } from './category.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
+import { PaginationParamDecorator } from 'src/decorators/pagination.decorator';
+import { IPagination } from 'src/shared/common.constants';
 
 @Controller()
 export class CategoryController {
@@ -31,9 +31,12 @@ export class CategoryController {
   }
 
   @Get()
-  findAll(@Res() response) {
-    response.status(200).json(response.advanceResult);
-    // return this.categoryService.findAll();
+  findAll(
+    // @Res() response,
+    @PaginationParamDecorator() pagination: IPagination,
+  ) {
+    // response.status(200).json(response.advanceResult);
+    return this.categoryService.findAll(pagination);
   }
 
   @Get(':id')

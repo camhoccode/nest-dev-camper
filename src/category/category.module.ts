@@ -1,17 +1,17 @@
 import {
-  MiddlewareConsumer,
+  // MiddlewareConsumer,
   Module,
-  NestModule,
-  RequestMethod,
-  Scope,
+  // NestModule,
+  // RequestMethod,
+  // Scope,
 } from '@nestjs/common';
 import { InjectModel, MongooseModule } from '@nestjs/mongoose';
 
 import { CategoryController } from './category.controller';
 import { CategoryService } from './category.service';
 import { Category, CategorySchema, CatsModel } from './schemas/category.schema';
-import { AdvancedResultMiddleware } from 'src/middleware/advancedResult.middleware';
-import { Model } from 'mongoose';
+// import { AdvancedResultMiddleware } from 'src/middleware/advancedResult.middleware';
+// import { Model } from 'mongoose';
 
 @Module({
   imports: [
@@ -25,18 +25,18 @@ import { Model } from 'mongoose';
     },
   ],
 })
-// export class CategoryModule {}
-export class CategoryModule implements NestModule {
-  constructor(
-    @InjectModel('categories')
-    private readonly categoryModel: Model<Category>,
-  ) {}
-  configure(consumer: MiddlewareConsumer) {
-    consumer
-      .apply(new AdvancedResultMiddleware().use(this.categoryModel))
-      .forRoutes({
-        path: 'api/v1/category',
-        method: RequestMethod.GET,
-      });
-  }
-}
+export class CategoryModule {}
+// export class CategoryModule implements NestModule {
+//   constructor(
+//     @InjectModel('categories')
+//     private readonly categoryModel: Model<Category>,
+//   ) {}
+//   configure(consumer: MiddlewareConsumer) {
+//     consumer
+//       .apply(new AdvancedResultMiddleware().use(this.categoryModel, 'tuts'))
+//       .forRoutes({
+//         path: 'api/v1/category',
+//         method: RequestMethod.GET,
+//       });
+//   }
+// }

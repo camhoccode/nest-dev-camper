@@ -27,9 +27,9 @@ export class TutorialsService {
   }
 
   async findAll(pagination: IPagination) {
-    const { page, skip } = pagination;
+    const { perpage, skip } = pagination;
     const [tuts, totalTuts] = await Promise.all([
-      this.tutModel.find().skip(skip).limit(page),
+      this.tutModel.find().skip(skip).limit(perpage),
       this.tutModel.countDocuments(),
     ]);
     return { data: tuts, totalTuts };

@@ -12,6 +12,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { Category } from './schemas/category.schema';
+import { IPagination } from 'src/shared/common.constants';
 
 @Injectable()
 export class CategoryService {
@@ -28,9 +29,18 @@ export class CategoryService {
     return { data: createCategoryDto };
   }
 
-  async findAll() {
-    // const cats = await this.categoryModel.find();
-    // return { data: cats };
+  async findAll(pagination: IPagination) {
+    const { perpage, skip } = pagination;
+    const [cats, totalCats] = await Promise.all([
+      this.categoryModel
+        .find()
+        .skip(skip)
+        .limit(perpage)
+        .populate('tuts')
+        .exec(),
+      this.categoryModel.countDocuments(),
+    ]);
+    return { totalCats, data: cats };
   }
 
   async findOne(id: string) {

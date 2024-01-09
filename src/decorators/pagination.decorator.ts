@@ -12,15 +12,15 @@ export const PaginationParamDecorator = createParamDecorator(
       req.query.page && +req.query.page > 0
         ? +req.query.page
         : DEFAULT_PAGINATION_PAGE;
-    const perPage =
-      req.query.perPage && +req.query.perPage > 0
-        ? +req.query.perPage
+    const perpage =
+      req.query.perpage && +req.query.perpage > 0
+        ? +req.query.perpage
         : DEFAULT_PAGINATION_PER_PAGE;
 
     return {
       page,
-      perPage,
-      skip: page * perPage,
+      perpage,
+      skip: (page - 1) * perpage,
     };
   },
 );

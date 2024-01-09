@@ -32,8 +32,8 @@ export class Tutorial {
   @Prop({ default: Date.now })
   createdAt: Date;
 
-  // @Prop({ type: Schema.Types.ObjectId, ref: 'Category', required: true })
-  // category: CatsModel; // Make sure to replace 'Category' with the actual name of your Category model
+  @Prop({ type: mongoose.Types.ObjectId, ref: 'categories', required: true })
+  category: mongoose.Types.ObjectId;
 
   // Uncomment the following lines if you have a 'User' model
   // @Prop({ type: Schema.Types.ObjectId, ref: 'User', required: true })
