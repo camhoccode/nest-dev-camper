@@ -59,6 +59,7 @@ export class User extends Document {
   }
 
   // Method to generate signed JWT token
+  @Prop({ method: Function })
   getSignedJwtToken(): string {
     return jwt.sign({ id: this._id }, process.env.JWT_SECRET, {
       expiresIn: process.env.JWT_EXPIRED,
