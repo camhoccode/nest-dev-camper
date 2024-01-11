@@ -58,27 +58,29 @@ export class User extends Document {
     next();
   }
 
-  // Method to generate signed JWT token
-  @Prop({ method: Function })
-  getSignedJwtToken(): string {
+  // sign jwt and return
+  getSignedJwtToken() {
     return jwt.sign({ id: this._id }, process.env.JWT_SECRET, {
       expiresIn: process.env.JWT_EXPIRED,
     });
   }
 
-  // Method to generate hashed reset password token
-  getResetPasswordToken(): string {
+  // generate hashed password
+  getResetPasswordToken() {
     const resetToken = crypto.randomBytes(20).toString('hex');
+    // hash tolen and set to resetpasswordtoken field
     this.resetPasswordToken = crypto
       .createHash('sha256')
       .update(resetToken)
       .digest('hex');
+
+    // set expire
     this.resetPasswordExpired = new Date(Date.now() + 10 * 60 * 1000);
     return resetToken;
   }
 
-  // Method to match user password to hashed password in the database
-  matchPassword(enteredPassword: string): Promise<boolean> {
+  // match user password to hashed password in database
+  matchPassword(enteredPassword) {
     return bcrypt.compare(enteredPassword, this.password);
   }
 }

@@ -37,6 +37,7 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.0.3",
     "nanoid": "3.3.4",
+    "nodemailer": "^6.9.8",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.1",
     "slugify": "^1.6.6"

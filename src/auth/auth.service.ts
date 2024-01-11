@@ -1,4 +1,4 @@
-import { Model } from 'mongoose';
+import mongoose, { Model } from 'mongoose';
 import { User } from 'src/users/schemas/user.schema';
 
 import { HttpException, Injectable } from '@nestjs/common';
@@ -10,12 +10,14 @@ import { RegisterDto } from './dto/register.dto';
 import { UpdateDetailsDto } from './dto/updateDetails.dto';
 import { UpdatePasswordDto } from './dto/updatePassword.dto';
 import { UserResponseDTO } from '../users/dtos/userResponse.dto';
+import { Response } from 'express';
+const crypto = require('crypto');
 
 @Injectable()
 export class AuthService {
   constructor(@InjectModel('users') private readonly userModel: Model<User>) {}
 
-  async registerUser(body: RegisterDto) {
+  async registerUser(body: RegisterDto): Promise<{ data: UserResponseDTO }> {
     const { name, email, password, role, phone } = body;
     const user = await this.userModel.create({
       name,
@@ -31,15 +33,94 @@ export class AuthService {
       data: user,
     };
   }
-  async login(body: LoginDto) {}
+  async login(body: LoginDto): Promise<{ data: UserResponseDTO }> {
+    const { email, password } = body;
+    const user = await this.userModel.findOne({ email }).select('+password');
+    if (!user) {
+      throw new HttpException('Cant create user', 500);
+    }
+    return {
+      data: user,
+    };
+  }
   async logout() {}
-  async getMe() {}
-  async forgotPassword(body: ForgotPasswordDto) {}
-  async updateDetails(body: UpdateDetailsDto) {}
-  async updatePassword(body: UpdatePasswordDto) {}
-  async resetPassword(token: string) {}
+  async getMe(id: string): Promise<{ data: UserResponseDTO }> {
+    const idMongo = new mongoose.Types.ObjectId(id);
+    const user = await this.userModel.findById(idMongo);
+    return { data: user };
+  }
 
-  async setTokenResponse(user: UserResponseDTO, statusCode, res) {
+  async forgotPassword(
+    body: ForgotPasswordDto,
+  ): Promise<{ data: UserResponseDTO }> {
+    const user = await this.userModel.findOne({ email: body.email });
+    if (!user) {
+      throw new HttpException('Cant create user', 500);
+    }
+    return {
+      data: user,
+    };
+  }
+
+  async updateDetails(
+    id: string,
+    body: UpdateDetailsDto,
+  ): Promise<{ data: UserResponseDTO }> {
+    const idMongo = new mongoose.Types.ObjectId(id);
+    const fieldToUpdate = {
+      name: body.name,
+      emal: body.email,
+    };
+    const user = await this.userModel.findByIdAndUpdate(
+      idMongo,
+      fieldToUpdate,
+      {
+        new: true,
+        runValidators: true,
+      },
+    );
+    if (!user) {
+      throw new HttpException('Cant update user', 500);
+    }
+    return {
+      data: user,
+    };
+  }
+  async updatePassword(
+    id: string,
+    body: UpdatePasswordDto,
+  ): Promise<{ data: UserResponseDTO }> {
+    const { currentPassword, newPassword } = body;
+    const idMongo = new mongoose.Types.ObjectId(id);
+    const user = await this.userModel.findById(idMongo).select('+password');
+    if (!(await user.matchPassword(currentPassword))) {
+      throw new HttpException('Invalid user id.', 401);
+    }
+    user.password = newPassword;
+    await user.save();
+    return { data: user };
+  }
+  async resetPassword(resettoken: string): Promise<{ user: UserResponseDTO }> {
+    // get hash token
+    const resetPasswordToken = crypto
+      .createHash('sha256')
+      .update(resettoken)
+      .digest('hex');
+    const user = await this.userModel.findOne({
+      resetPasswordToken,
+      resetPasswordExpired: { $gt: Date.now() },
+    });
+    if (!user) {
+      throw new HttpException('Invalid resetPasswordToken.', 401);
+    }
+    return { user };
+  }
+
+  async setTokenResponse(
+    user: UserResponseDTO | null,
+    statusCode: number,
+    res: Response,
+  ) {
     const token = user.getSignedJwtToken();
     const options = {
       expires: new Date(
