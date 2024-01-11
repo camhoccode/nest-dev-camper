@@ -25,13 +25,13 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('/register')
-  async registerUser(@Body() body: RegisterDto, @Res() res: Response) {
-    const user = await this.authService.registerUser(body);
-    await this.authService.setTokenResponse(user.data, 200, res);
+  registerUser(@Body() body: RegisterDto) {
+    return this.authService.register(body);
+    // await this.authService.setTokenResponse(user.data, 200, res);
   }
 
   @Post('/login')
-  async login(@Body() body: LoginDto, @Res() res: Response) {
+  login(@Body() body: LoginDto) {
     return this.authService.login(body);
     // const user = await this.authService.login(body);
     // await this.authService.setTokenResponse(user.data, 200, res);

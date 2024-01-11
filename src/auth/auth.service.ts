@@ -1,7 +1,12 @@
 import mongoose, { Model } from 'mongoose';
 import { User } from 'src/users/schemas/user.schema';
 
-import { HttpException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  HttpException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 
 import { ForgotPasswordDto } from './dto/forgorPassword.dto';
@@ -12,17 +17,29 @@ import { UpdatePasswordDto } from './dto/updatePassword.dto';
 import { UserResponseDTO } from '../users/dtos/userResponse.dto';
 import { Response } from 'express';
 const crypto = require('crypto');
-
+import { randomBytes, scrypt as _scrypt } from 'crypto';
+import { promisify } from 'util';
+const scrypt = promisify(_scrypt);
 @Injectable()
 export class AuthService {
   constructor(@InjectModel('users') private readonly userModel: Model<User>) {}
 
-  async registerUser(body: RegisterDto): Promise<{ data: UserResponseDTO }> {
+  async register(body: RegisterDto): Promise<{ data: UserResponseDTO }> {
     const { name, email, password, role, phone } = body;
+    const checkingUser = await this.userModel.findOne({ email });
+    if (checkingUser) {
+      throw new BadRequestException('Email already exist');
+    }
+    // hash user password
+    const salt = randomBytes(8).toString('hex');
+    const hash = (await scrypt(password, salt, 32)) as Buffer; // hash the salt and password together
+    const result = salt + '.' + hash.toString('hex');
+
+    // create user
     const user = await this.userModel.create({
       name,
       email,
-      password,
+      password: result,
       role,
       phone,
     });
@@ -35,10 +52,19 @@ export class AuthService {
   }
   async login(body: LoginDto): Promise<{ data: UserResponseDTO }> {
     const { email, password } = body;
-    const user = await this.userModel.findOne({ email }).select('+password');
+    const user = await this.userModel.findOne({ email });
+    console.log(user);
     if (!user) {
-      throw new HttpException('Cant create user', 500);
+      throw new NotFoundException('Cant found user');
     }
+    const [salt, storedHash] = user.password.split('.');
+    // hash user password
+    const inputHash = (await scrypt(password, salt, 32)) as Buffer; // hash the salt and password together
+
+    if (inputHash.toString('hex') !== storedHash) {
+      throw new BadRequestException('Wrong password');
+    }
+
     return {
       data: user,
     };
