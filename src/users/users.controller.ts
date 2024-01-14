@@ -18,12 +18,12 @@ import { CreateUserDto } from './dtos/create-user.dto';
 import { UpdateUserDto } from './dtos/update-user.dto';
 import { UsersService } from './users.service';
 
+@UseGuards(AuthGuard)
+@Roles([EUserRole.admin, EUserRole.superadmin])
 @Controller()
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @UseGuards(AuthGuard)
-  @Roles([EUserRole.admin, EUserRole.superadmin])
   @Get()
   async findAll(@PaginationParamDecorator() pagination: IPagination) {
     return this.usersService.findAll(pagination);
@@ -33,10 +33,12 @@ export class UsersController {
   async findOne(@Param() id: string) {
     return this.usersService.findOne(id);
   }
+
   @Patch(':id')
   async update(@Param() id: string, @Body() body: UpdateUserDto) {
     return this.usersService.update(id, body);
   }
+
   @Delete(':id')
   async delete(@Param() id: string) {
     return this.usersService.delete(id);

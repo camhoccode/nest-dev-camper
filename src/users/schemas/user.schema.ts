@@ -47,42 +47,6 @@ export class User extends Document {
 
   @Prop({ default: Date.now })
   createdAt: Date;
-
-  // Mongoose middleware for password encryption
-  async preSave(next: Function): Promise<void> {
-    if (!this.isModified('password')) {
-      return next();
-    }
-    const salt = await bcrypt.genSalt(10);
-    this.password = await bcrypt.hash(this.password, salt);
-    next();
-  }
-
-  // sign jwt and return
-  getSignedJwtToken() {
-    return jwt.sign({ id: this._id }, process.env.JWT_SECRET, {
-      expiresIn: process.env.JWT_EXPIRED,
-    });
-  }
-
-  // generate hashed password
-  getResetPasswordToken() {
-    const resetToken = crypto.randomBytes(20).toString('hex');
-    // hash tolen and set to resetpasswordtoken field
-    this.resetPasswordToken = crypto
-      .createHash('sha256')
-      .update(resetToken)
-      .digest('hex');
-
-    // set expire
-    this.resetPasswordExpired = new Date(Date.now() + 10 * 60 * 1000);
-    return resetToken;
-  }
-
-  // match user password to hashed password in database
-  matchPassword(enteredPassword) {
-    return bcrypt.compare(enteredPassword, this.password);
-  }
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

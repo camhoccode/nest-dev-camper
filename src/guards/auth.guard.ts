@@ -1,6 +1,5 @@
-import * as httpContext from 'express-http-context';
 import { ROLES_KEY } from 'src/decorators/role.decorator';
-import { EUserRole, JwtPayload } from 'src/shared/common.constants';
+import { EUserRole } from 'src/shared/common.constants';
 import { UsersService } from 'src/users/users.service';
 
 import {
@@ -11,6 +10,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
+const jwt = require('jsonwebtoken');
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -21,17 +21,14 @@ export class AuthGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const req = context.switchToHttp().getRequest();
-    const accessToken = req.headers['authorization'];
-    if (!accessToken) {
-      throw new BadRequestException('Authorization header is required');
-    }
 
-    const user: JwtPayload = httpContext.get('user');
-    if (!user) {
-      throw new UnauthorizedException('Unauthorized access');
+    const accessToken = req.cookies.token;
+    console.log('accessToken', accessToken);
+    if (!accessToken || accessToken === 'none') {
+      throw new BadRequestException('Authorization is required');
     }
-
-    if (new Date(user.exp * 1000) < new Date()) {
+    const decoded = jwt.verify(accessToken, process.env.JWT_SECRET);
+    if (new Date(decoded.exp * 1000) < new Date()) {
       throw new UnauthorizedException('Token is expired');
     }
 
@@ -39,18 +36,15 @@ export class AuthGuard implements CanActivate {
     if (!requiredRoles) {
       return true;
     }
-
     try {
-      const currentUser = await this.userService.findOne(user.uuid);
-      return Object.keys(requiredRoles).includes(
-        currentUser.data.role as string,
-      );
+      const currentUser = await this.userService.findOne(decoded.id);
+      return Object.values(requiredRoles).includes(currentUser.data.role);
     } catch (error) {
       throw new UnauthorizedException('Unauthorized');
     }
   }
 
-  private getRouteRoles(context: ExecutionContext): EUserRole[] | void {
+  private getRouteRoles(context: ExecutionContext): string[] | void {
     let routeRoles = this.reflector.get<EUserRole[] | void>(
       ROLES_KEY,
       context.getClass(),

@@ -8,10 +8,10 @@ export const DEFAULT_PAGINATION_PAGE = 1;
 export const DEFAULT_PAGINATION_PER_PAGE = 3;
 
 export enum EUserRole {
-  superadmin = 0,
-  admin = 1,
-  teacher = 2,
-  user = 3,
+  superadmin = 'superadmin',
+  admin = 'admin',
+  teacher = 'teacher',
+  user = 'user',
 }
 
 export interface JwtPayload {

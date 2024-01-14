@@ -43,32 +43,6 @@ export class UserResponseDTO {
   @IsDate()
   resetPasswordExpired: Date;
 
-  // Method to generate hashed reset password token
-  getResetPasswordToken(): string {
-    const resetToken = crypto.randomBytes(20).toString('hex');
-    // hash tolen and set to resetpasswordtoken field
-    this.resetPasswordToken = crypto
-      .createHash('sha256')
-      .update(resetToken)
-      .digest('hex');
-
-    // set expire
-    this.resetPasswordExpired = new Date(new Date().getTime() + 10 * 60 * 1000);
-    return resetToken;
-  }
-
-  // Method to match user password to hashed password in the database
-  matchPassword(enteredPassword: string): boolean {
-    return bcrypt.compare(enteredPassword, this.password);
-  }
-
-  // Method to generate signed JWT token
-  getSignedJwtToken(): string {
-    return jwt.sign({ id: this._id }, process.env.JWT_SECRET, {
-      expiresIn: process.env.JWT_EXPIRED,
-    });
-  }
-
   createdAt?: Date;
 
   constructor(user: UserResponseDTO) {

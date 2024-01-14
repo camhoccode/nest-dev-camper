@@ -1,5 +1,6 @@
 import mongoose, { Model } from 'mongoose';
 import { User } from 'src/users/schemas/user.schema';
+const bcrypt = require('bcrypt');
 
 import {
   BadRequestException,
@@ -30,11 +31,9 @@ export class AuthService {
     if (checkingUser) {
       throw new BadRequestException('Email already exist');
     }
-    // hash user password
-    const salt = randomBytes(8).toString('hex');
-    const hash = (await scrypt(password, salt, 32)) as Buffer; // hash the salt and password together
-    const result = salt + '.' + hash.toString('hex');
-
+    // hashing password
+    const salt = await bcrypt.genSalt(10);
+    const result = await bcrypt.hash(password, salt);
     // create user
     const user = await this.userModel.create({
       name,
@@ -59,11 +58,7 @@ export class AuthService {
     if (!user) {
       throw new NotFoundException('Cant found user');
     }
-    const [salt, storedHash] = user.password.split('.');
-    // hash user password
-    const inputHash = (await scrypt(password, salt, 32)) as Buffer; // hash the salt and password together
-
-    if (inputHash.toString('hex') !== storedHash) {
+    if (!(await bcrypt.compare(password, user.password))) {
       throw new BadRequestException('Wrong password');
     }
     // hide password
@@ -72,7 +67,9 @@ export class AuthService {
       data: user,
     };
   }
-  async logout() {}
+  async logout() {
+    return { msg: 'Logged out' };
+  }
 
   async getMe(id: string): Promise<{ data: UserResponseDTO }> {
     const idMongo = new mongoose.Types.ObjectId(id);
@@ -90,18 +87,49 @@ export class AuthService {
   ): Promise<{ data: UserResponseDTO }> {
     const user = await this.userModel.findOne({ email: body.email });
     if (!user) {
-      throw new HttpException('Cant create user', 500);
+      throw new HttpException('Cant find user', 500);
     }
     return {
       data: user,
     };
   }
 
+  async resetPassword(
+    resettoken: string,
+    body,
+  ): Promise<{ user: UserResponseDTO }> {
+    // get hash token
+    const resetPasswordToken = crypto
+      .createHash('sha256')
+      .update(resettoken)
+      .digest('hex');
+
+    const user = await this.userModel.findOne({
+      resetPasswordToken,
+      resetPasswordExpired: { $gt: new Date() },
+    });
+    if (!user) {
+      throw new HttpException('Invalid resetPasswordToken.', 401);
+    }
+
+    // hashing password
+    const salt = await bcrypt.genSalt(10);
+    const result = await bcrypt.hash(body.password, salt);
+
+    await this.userModel.findOneAndUpdate(
+      { resetPasswordToken },
+      { password: result },
+    );
+
+    user.password = undefined;
+    return { user };
+  }
   async updateDetails(
     id: string,
     body: UpdateDetailsDto,
   ): Promise<{ data: UserResponseDTO }> {
     const idMongo = new mongoose.Types.ObjectId(id);
+
     const fieldToUpdate = {
       name: body.name,
       emal: body.email,
@@ -127,51 +155,20 @@ export class AuthService {
   ): Promise<{ data: UserResponseDTO }> {
     const { currentPassword, newPassword } = body;
     const idMongo = new mongoose.Types.ObjectId(id);
-    const user = await this.userModel.findById(idMongo).select('+password');
-    if (!(await user.matchPassword(currentPassword))) {
-      throw new HttpException('Invalid user id.', 401);
+    const user = await this.userModel.findById(idMongo);
+
+    if (!(await bcrypt.compare(currentPassword, user.password))) {
+      throw new HttpException('Invalid user password.', 401);
     }
-    user.password = newPassword;
-    await user.save();
-    return { data: user };
-  }
-  async resetPassword(resettoken: string): Promise<{ user: UserResponseDTO }> {
-    // get hash token
-    const resetPasswordToken = crypto
-      .createHash('sha256')
-      .update(resettoken)
-      .digest('hex');
-    const user = await this.userModel.findOne({
-      resetPasswordToken,
-      resetPasswordExpired: { $gt: Date.now() },
+    // hashing password
+    const salt = await bcrypt.genSalt(10);
+    const newSavedPassword = await bcrypt.hash(newPassword, salt);
+    const newUser = await this.userModel.findByIdAndUpdate(idMongo, {
+      password: newSavedPassword,
     });
-    if (!user) {
-      throw new HttpException('Invalid resetPasswordToken.', 401);
-    }
-    return { user };
-  }
+    // hide password
+    newUser.password = undefined;
 
-  async setTokenResponse(
-    user: UserResponseDTO | null,
-    statusCode: number,
-    res: Response,
-  ) {
-    const token = user.getSignedJwtToken();
-    const options = {
-      expires: new Date(
-        new Date().getTime() +
-          parseInt(process.env.JWT_COOKIE_EXPIRED) * 24 * 3600 * 1000,
-      ),
-      httpOnly: true,
-    };
-
-    if (process.env.NODE_ENV === 'production') {
-      options['secure'] = true;
-    }
-
-    res.status(statusCode).cookie('token', token, options).json({
-      success: true,
-      token,
-    });
+    return { data: newUser };
   }
 }
