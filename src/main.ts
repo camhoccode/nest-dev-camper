@@ -1,11 +1,17 @@
+// import mongoose from 'mongoose';
+const jwt = require('jsonwebtoken');
+
+import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
+import * as cookieParser from 'cookie-parser';
+
 import { AppModule } from './app.module';
-import mongoose from 'mongoose';
 
 async function bootstrap() {
-  await mongoose.connect(process.env.MONGO_URI);
-  console.log('Db connected');
   const app = await NestFactory.create(AppModule);
+  app.use(cookieParser());
+
+  app.useGlobalPipes(new ValidationPipe());
   await app.listen(5000);
 }
 bootstrap();

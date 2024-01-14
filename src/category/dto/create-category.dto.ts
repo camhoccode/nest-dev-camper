@@ -1,6 +1,9 @@
+import { Type } from 'class-transformer';
 import {
+  IsArray,
   IsDate,
   IsEnum,
+  IsIn,
   IsNotEmpty,
   IsOptional,
   IsString,
@@ -8,6 +11,7 @@ import {
   Max,
   MaxLength,
   Min,
+  ValidateNested,
 } from 'class-validator';
 import mongoose from 'mongoose';
 export enum Careers {
@@ -18,10 +22,21 @@ export enum Careers {
   'Business' = 'Business',
   'Other' = 'Other',
 }
+type CareerOptions =
+  | 'Web Development'
+  | 'Mobile Development'
+  | 'UI/UX'
+  | 'Data Science'
+  | 'Business'
+  | 'Other';
+
 export class CreateCategoryDto {
   @IsString()
   @IsNotEmpty()
   name: string;
+
+  @IsOptional()
+  _id: mongoose.Types.ObjectId;
 
   slug: string;
 
@@ -56,22 +71,25 @@ export class CreateCategoryDto {
   })
   address: string;
 
-  @IsNotEmpty()
-  @IsEnum(Careers)
-  career: string[];
+  @IsArray()
+  @IsIn(Object.values(Careers), {
+    each: true,
+    message: 'Invalid career option.',
+  })
+  careers: CareerOptions[];
 
-  @Min(1, { message: 'Rating must be at least 1' })
-  @Max(10, { message: 'Rating must be less than 10' })
-  averageRating: string;
+  // @Min(1, { message: 'Rating must be at least 1' })
+  // @Max(10, { message: 'Rating must be less than 10' })
+  // averageRating: string;
 
-  averageCost: number;
+  // averageCost: number;
   housing: boolean = false;
   jobAssistance: boolean = false;
   jobGuarantee: boolean = false;
   acceptGi: boolean = false;
 
-  @IsNotEmpty()
-  user: typeof mongoose.Schema.ObjectId;
+  // @IsNotEmpty()
+  // user: typeof mongoose.Schema.ObjectId;
 
   @IsDate()
   createdAt: Date = new Date();

@@ -1,26 +1,71 @@
-import { Injectable } from '@nestjs/common';
+import mongoose, { Model } from 'mongoose';
+import { IPagination } from 'src/shared/common.constants';
+import { Errors } from 'src/shared/errors.constant';
+
+import {
+  BadRequestException,
+  HttpException,
+  HttpStatus,
+  Injectable,
+} from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+
 import { CreateTutorialDto } from './dto/create-tutorial.dto';
 import { UpdateTutorialDto } from './dto/update-tutorial.dto';
+import { Tutorial } from './schemas/tutotial.schema';
 
 @Injectable()
 export class TutorialsService {
-  create(createTutorialDto: CreateTutorialDto) {
-    return 'This action adds a new tutorial';
+  constructor(@InjectModel('tuts') private tutModel: Model<Tutorial>) {}
+
+  async create(createTutorialDto: CreateTutorialDto) {
+    const data = await this.tutModel.create(createTutorialDto);
+    if (!data) {
+      throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
+    }
+    return { data: createTutorialDto };
   }
 
-  findAll() {
-    return `This action returns all tutorials`;
+  async findAll(pagination: IPagination) {
+    const { perpage, skip } = pagination;
+    const [tuts, totalTuts] = await Promise.all([
+      this.tutModel.find().skip(skip).limit(perpage),
+      this.tutModel.countDocuments(),
+    ]);
+    return { data: tuts, totalTuts };
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} tutorial`;
+  async findOne(id: string) {
+    const idMongo = new mongoose.Types.ObjectId(id);
+    const tut = await this.tutModel.findOne({ _id: idMongo });
+    if (!tut) {
+      throw new BadRequestException(Errors.INVALID_TUTORIAL_UUID);
+    }
+    return {
+      data: tut,
+    };
   }
 
-  update(id: number, updateTutorialDto: UpdateTutorialDto) {
-    return `This action updates a #${id} tutorial`;
+  async update(id: string, updateTutorialDto: UpdateTutorialDto) {
+    const idMongo = new mongoose.Types.ObjectId(id);
+    const tut = await this.tutModel.findOne({ _id: idMongo });
+    if (!tut) {
+      throw new BadRequestException(Errors.INVALID_CATEGORY_UUID);
+    }
+    let updatedData = await this.tutModel.updateOne(
+      { _id: idMongo },
+      updateTutorialDto,
+    );
+    return { updatedData };
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} tutorial`;
+  async remove(id: string) {
+    const idMongo = new mongoose.Types.ObjectId(id);
+    const tut = await this.tutModel.findOne({ _id: idMongo });
+    if (!tut) {
+      throw new BadRequestException(Errors.INVALID_CATEGORY_UUID);
+    }
+    let deletedData = await this.tutModel.deleteOne({ _id: idMongo });
+    return { deletedData };
   }
 }

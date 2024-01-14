@@ -10,6 +10,8 @@ import {
 import { TutorialsService } from './tutorials.service';
 import { CreateTutorialDto } from './dto/create-tutorial.dto';
 import { UpdateTutorialDto } from './dto/update-tutorial.dto';
+import { PaginationParamDecorator } from 'src/decorators/pagination.decorator';
+import { IPagination } from 'src/shared/common.constants';
 
 @Controller()
 export class TutorialsController {
@@ -21,13 +23,14 @@ export class TutorialsController {
   }
 
   @Get()
-  findAll() {
-    return this.tutorialsService.findAll();
+  async findAll(@PaginationParamDecorator() pagination: IPagination) {
+    // console.log(pagination);
+    return this.tutorialsService.findAll(pagination);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.tutorialsService.findOne(+id);
+  findOne(@Param() id: string) {
+    return this.tutorialsService.findOne(id);
   }
 
   @Patch(':id')
@@ -35,11 +38,11 @@ export class TutorialsController {
     @Param('id') id: string,
     @Body() updateTutorialDto: UpdateTutorialDto,
   ) {
-    return this.tutorialsService.update(+id, updateTutorialDto);
+    return this.tutorialsService.update(id, updateTutorialDto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.tutorialsService.remove(+id);
+    return this.tutorialsService.remove(id);
   }
 }
