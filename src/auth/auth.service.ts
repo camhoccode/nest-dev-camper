@@ -46,6 +46,9 @@ export class AuthService {
     if (!user) {
       throw new HttpException('Cant create user', 500);
     }
+
+    // hide password
+    user.password = undefined;
     return {
       data: user,
     };
@@ -53,7 +56,6 @@ export class AuthService {
   async login(body: LoginDto): Promise<{ data: UserResponseDTO }> {
     const { email, password } = body;
     const user = await this.userModel.findOne({ email });
-    console.log(user);
     if (!user) {
       throw new NotFoundException('Cant found user');
     }
@@ -64,15 +66,22 @@ export class AuthService {
     if (inputHash.toString('hex') !== storedHash) {
       throw new BadRequestException('Wrong password');
     }
-
+    // hide password
+    user.password = undefined;
     return {
       data: user,
     };
   }
   async logout() {}
+
   async getMe(id: string): Promise<{ data: UserResponseDTO }> {
     const idMongo = new mongoose.Types.ObjectId(id);
     const user = await this.userModel.findById(idMongo);
+    if (!user) {
+      throw new NotFoundException('Cant found user');
+    }
+    // hide password
+    user.password = undefined;
     return { data: user };
   }
 

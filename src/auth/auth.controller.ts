@@ -11,6 +11,7 @@ import {
   Put,
   Req,
   Res,
+  Session,
 } from '@nestjs/common';
 
 import { AuthService } from './auth.service';
@@ -25,14 +26,18 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('/register')
-  registerUser(@Body() body: RegisterDto) {
-    return this.authService.register(body);
+  async register(@Body() body: RegisterDto, @Session() session: any) {
+    const user = await this.authService.register(body);
+    session.userId = user.data._id;
+    return user;
     // await this.authService.setTokenResponse(user.data, 200, res);
   }
 
   @Post('/login')
-  login(@Body() body: LoginDto) {
-    return this.authService.login(body);
+  async login(@Body() body: LoginDto, @Session() session: any) {
+    const user = await this.authService.login(body);
+    session.userId = user.data._id;
+    return user;
     // const user = await this.authService.login(body);
     // await this.authService.setTokenResponse(user.data, 200, res);
   }
@@ -101,18 +106,16 @@ export class AuthController {
     await this.authService.setTokenResponse(user.data, 200, res);
   }
 
-  @Get('/logout')
-  async logout(@Res() res: Response) {
-    res.cookie('token', 'none', {
-      expires: new Date(Date.now() + 10 * 1000),
-      httpOnly: true,
-    });
-    res.status(200).json({ success: true, data: {} });
+  @Post('/logout')
+  async logout(@Session() session: any) {
+    session.userId = null;
+    return {};
   }
 
   @Get('/me')
-  async getMe(@Req() req, @Res() res: Response) {
-    const user = await this.authService.getMe(req.user.id);
-    await this.authService.setTokenResponse(user.data, 200, res);
+  async getMe(@Session() session: any) {
+    const user = await this.authService.getMe(session.userId);
+    return user;
+    // await this.authService.setTokenResponse(user.data, 200, res);
   }
 }

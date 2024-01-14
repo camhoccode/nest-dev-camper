@@ -13,7 +13,7 @@ export class User extends Document {
   @Prop({
     type: String,
     minlength: 6,
-    select: false,
+    // select: false,
     required: [true, 'Please add password for user'],
   })
   password: string;

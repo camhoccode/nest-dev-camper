@@ -3,6 +3,8 @@ import { UsersService } from './users.service';
 import { UsersController } from './users.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { UserSchema } from './schemas/user.schema';
+import { CurrentUserInterceptor } from './interceptors/current-user.interceptor';
+import { APP_INTERCEPTOR } from '@nestjs/core';
 
 @Module({
   imports: [
@@ -13,7 +15,10 @@ import { UserSchema } from './schemas/user.schema';
       },
     ]),
   ],
-  providers: [UsersService],
+  providers: [
+    UsersService,
+    { provide: APP_INTERCEPTOR, useClass: CurrentUserInterceptor },
+  ],
   controllers: [UsersController],
 })
 export class UsersModule {}
