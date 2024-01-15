@@ -9,14 +9,18 @@ import {
   Post,
   Req,
   Res,
+  UseGuards,
 } from '@nestjs/common';
 
 import { CategoryService } from './category.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { PaginationParamDecorator } from 'src/decorators/pagination.decorator';
-import { IPagination } from 'src/shared/common.constants';
+import { EUserRole, IPagination } from 'src/shared/common.constants';
+import { AuthGuard } from 'src/guards/auth.guard';
+import { Roles } from 'src/decorators/role.decorator';
 
+@UseGuards(AuthGuard)
 @Controller()
 export class CategoryController {
   constructor(
@@ -24,6 +28,7 @@ export class CategoryController {
     private readonly categoryService: CategoryService, // @InjectModel('Category') private categoryModel: Model<any>,
   ) {}
 
+  @Roles([EUserRole.admin, EUserRole.teacher])
   @Post()
   create(@Body() createCategoryDto: CreateCategoryDto) {
     return this.categoryService.create(createCategoryDto);
@@ -40,11 +45,13 @@ export class CategoryController {
     return this.categoryService.findOne(id);
   }
 
+  @Roles([EUserRole.admin, EUserRole.teacher])
   @Patch(':id')
   update(@Param('id') id, @Body() updateCategoryDto: UpdateCategoryDto) {
     return this.categoryService.update(id, updateCategoryDto);
   }
 
+  @Roles([EUserRole.admin, EUserRole.teacher])
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.categoryService.remove(id);

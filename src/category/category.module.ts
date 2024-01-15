@@ -1,21 +1,16 @@
-import {
-  // MiddlewareConsumer,
-  Module,
-  // NestModule,
-  // RequestMethod,
-  // Scope,
-} from '@nestjs/common';
-import { InjectModel, MongooseModule } from '@nestjs/mongoose';
+import { Module } from '@nestjs/common';
+import { MongooseModule } from '@nestjs/mongoose';
 
 import { CategoryController } from './category.controller';
 import { CategoryService } from './category.service';
-import { Category, CategorySchema, CatsModel } from './schemas/category.schema';
-// import { AdvancedResultMiddleware } from 'src/middleware/advancedResult.middleware';
-// import { Model } from 'mongoose';
+import { CategorySchema } from './schemas/category.schema';
+import { UserSchema } from 'src/users/schemas/user.schema';
+import { UsersService } from 'src/users/users.service';
 
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: 'categories', schema: CategorySchema }]),
+    MongooseModule.forFeature([{ name: 'users', schema: UserSchema }]),
   ],
   controllers: [CategoryController],
   providers: [
@@ -23,6 +18,7 @@ import { Category, CategorySchema, CatsModel } from './schemas/category.schema';
       provide: 'CategoryService',
       useClass: CategoryService,
     },
+    UsersService,
   ],
 })
 export class CategoryModule {}

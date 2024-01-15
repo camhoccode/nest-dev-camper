@@ -1,6 +1,3 @@
-import * as bcrypt from 'bcrypt';
-import * as crypto from 'crypto';
-import * as jwt from 'jsonwebtoken';
 import { Document } from 'mongoose';
 
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
@@ -28,7 +25,7 @@ export class User extends Document {
 
   @Prop({
     type: String,
-    enum: ['user', 'publisher'],
+    enum: ['user', 'teacher'],
     default: 'user',
   })
   role: string;

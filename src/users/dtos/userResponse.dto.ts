@@ -7,13 +7,10 @@ import {
   MaxLength,
   MinLength,
 } from 'class-validator';
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
-const crypto = require('crypto');
 
 enum UserRole {
   USER = 'user',
-  PUBLISHER = 'publisher',
+  PUBLISHER = 'teacher',
 }
 
 export class UserResponseDTO {

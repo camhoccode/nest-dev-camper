@@ -17,7 +17,7 @@ export class CreateUserDto {
   @IsEmail({}, { message: 'Please add a valid email' })
   email: string;
 
-  @IsEnum(['user', 'publisher'], { message: 'Invalid user role' })
+  @IsEnum(['user', 'teacher'], { message: 'Invalid user role' })
   role: string;
 
   @IsOptional()

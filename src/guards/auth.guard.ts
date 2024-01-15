@@ -23,7 +23,7 @@ export class AuthGuard implements CanActivate {
     const req = context.switchToHttp().getRequest();
 
     const accessToken = req.cookies.token;
-    console.log('accessToken', accessToken);
+    // console.log('accessToken', accessToken);
     if (!accessToken || accessToken === 'none') {
       throw new BadRequestException('Authorization is required');
     }
