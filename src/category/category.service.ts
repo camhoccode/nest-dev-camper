@@ -21,7 +21,8 @@ export class CategoryService {
     private readonly categoryModel: Model<Category>,
   ) {}
 
-  async create(createCategoryDto: CreateCategoryDto) {
+  async create(createCategoryDto: CreateCategoryDto, userId: string) {
+    createCategoryDto.user = userId;
     const data = await this.categoryModel.create(createCategoryDto);
     if (!data) {
       throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
@@ -54,12 +55,20 @@ export class CategoryService {
     };
   }
 
-  async update(id: string, updateCategoryDto: UpdateCategoryDto) {
+  async update(
+    id: string,
+    updateCategoryDto: UpdateCategoryDto,
+    userId: string,
+  ) {
     const idMongo = new mongoose.Types.ObjectId(id);
     const cat = await this.categoryModel.findOne({ _id: idMongo });
     if (!cat) {
       throw new BadRequestException(Errors.INVALID_CATEGORY_UUID);
     }
+    if (cat.user !== userId) {
+      throw new BadRequestException(Errors.INVALID_CATEGORY_OWNERSHIP);
+    }
+
     let updatedData = await this.categoryModel.updateOne(
       { _id: idMongo },
       updateCategoryDto,
@@ -67,11 +76,14 @@ export class CategoryService {
     return { updatedData };
   }
 
-  async remove(id: string) {
+  async remove(id: string, userId) {
     const idMongo = new mongoose.Types.ObjectId(id);
     const cat = await this.categoryModel.findOne({ _id: idMongo });
     if (!cat) {
       throw new BadRequestException(Errors.INVALID_CATEGORY_UUID);
+    }
+    if (cat.user !== userId) {
+      throw new BadRequestException(Errors.INVALID_CATEGORY_OWNERSHIP);
     }
     let deletedData = await this.categoryModel.deleteOne({ _id: idMongo });
     return { deletedData };

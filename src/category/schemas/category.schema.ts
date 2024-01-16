@@ -130,9 +130,10 @@ export class Category extends Document {
   @Prop({ type: Date, default: Date.now })
   createdAt: Date;
 
-  // @Prop({ type: mongoose.Schema.ObjectId, ref: 'User', required: true })
-  // user: User;
-  @Prop({ type: mongoose.Schema.ObjectId, ref: 'tuts', required: true })
+  @Prop({ type: String, ref: 'User', required: true })
+  user: string;
+
+  @Prop({ type: mongoose.Schema.ObjectId, ref: 'tuts', required: false })
   tutorials: Tutorial[];
 
   async preSave(next: Function): Promise<void> {

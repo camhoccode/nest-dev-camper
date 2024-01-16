@@ -42,6 +42,11 @@ export const Errors = {
     statusCode: HttpStatus.BAD_REQUEST,
     errorCode: ErrorCodes.INVALID_CATEGORY_UUID,
   },
+  INVALID_CATEGORY_OWNERSHIP: {
+    message: 'User not own category',
+    statusCode: HttpStatus.BAD_REQUEST,
+    errorCode: ErrorCodes.INVALID_CATEGORY_OWNERSHIP,
+  },
   INVALID_SUB_CATEGORY_UUID: {
     message: 'SubCategory UUID is invalid',
     statusCode: HttpStatus.BAD_REQUEST,

@@ -88,8 +88,8 @@ export class CreateCategoryDto {
   jobGuarantee: boolean = false;
   acceptGi: boolean = false;
 
-  // @IsNotEmpty()
-  // user: typeof mongoose.Schema.ObjectId;
+  @IsOptional()
+  user: string;
 
   @IsDate()
   createdAt: Date = new Date();
