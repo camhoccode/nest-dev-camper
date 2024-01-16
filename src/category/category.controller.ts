@@ -10,7 +10,6 @@ import {
   UseGuards,
 } from '@nestjs/common';
 
-import { AuthService } from 'src/auth/auth.service';
 import { Cookies } from 'src/decorators/cookies.decorator';
 import { PaginationParamDecorator } from 'src/decorators/pagination.decorator';
 import { Roles } from 'src/decorators/role.decorator';

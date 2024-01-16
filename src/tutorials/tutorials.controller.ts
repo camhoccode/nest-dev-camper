@@ -15,7 +15,9 @@ import { PaginationParamDecorator } from 'src/decorators/pagination.decorator';
 import { EUserRole, IPagination } from 'src/shared/common.constants';
 import { AuthGuard } from 'src/guards/auth.guard';
 import { Roles } from 'src/decorators/role.decorator';
+import { Cookies } from 'src/decorators/cookies.decorator';
 
+const jwt = require('jsonwebtoken');
 @UseGuards(AuthGuard)
 @Controller()
 export class TutorialsController {
@@ -43,13 +45,16 @@ export class TutorialsController {
   update(
     @Param('id') id: string,
     @Body() updateTutorialDto: UpdateTutorialDto,
+    @Cookies('token') token: string,
   ) {
-    return this.tutorialsService.update(id, updateTutorialDto);
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    return this.tutorialsService.update(id, updateTutorialDto, decoded.id);
   }
 
   @Roles([EUserRole.admin, EUserRole.teacher])
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.tutorialsService.remove(id);
+  remove(@Param('id') id: string, @Cookies('token') token: string) {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    return this.tutorialsService.remove(id, decoded.id);
   }
 }

@@ -36,13 +36,13 @@ export class Tutorial {
   category: mongoose.Types.ObjectId;
 
   // Uncomment the following lines if you have a 'User' model
-  // @Prop({ type: Schema.Types.ObjectId, ref: 'User', required: true })
-  // user: User; // Replace 'User' with the actual name of your User model
+  @Prop({ type: String, ref: 'User', required: true })
+  user: string; // Replace 'User' with the actual name of your User model
 }
 
 export const TutorialSchema = SchemaFactory.createForClass(Tutorial);
 
-//static method to get avg of course tuition
+// static method to get avg of course tuition
 // TutorialSchema.statics.getAverageCost = async function (categoryId) {
 //   const obj = await this.aggregate([
 //     {

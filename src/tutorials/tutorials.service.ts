@@ -46,11 +46,18 @@ export class TutorialsService {
     };
   }
 
-  async update(id: string, updateTutorialDto: UpdateTutorialDto) {
+  async update(
+    id: string,
+    updateTutorialDto: UpdateTutorialDto,
+    userId: string,
+  ) {
     const idMongo = new mongoose.Types.ObjectId(id);
     const tut = await this.tutModel.findOne({ _id: idMongo });
     if (!tut) {
       throw new BadRequestException(Errors.INVALID_CATEGORY_UUID);
+    }
+    if (tut.user !== userId) {
+      throw new BadRequestException(Errors.INVALID_TUTORIAL_OWNERSHIP);
     }
     let updatedData = await this.tutModel.updateOne(
       { _id: idMongo },
@@ -59,11 +66,14 @@ export class TutorialsService {
     return { updatedData };
   }
 
-  async remove(id: string) {
+  async remove(id: string, userId: string) {
     const idMongo = new mongoose.Types.ObjectId(id);
     const tut = await this.tutModel.findOne({ _id: idMongo });
     if (!tut) {
       throw new BadRequestException(Errors.INVALID_CATEGORY_UUID);
+    }
+    if (tut.user !== userId) {
+      throw new BadRequestException(Errors.INVALID_TUTORIAL_OWNERSHIP);
     }
     let deletedData = await this.tutModel.deleteOne({ _id: idMongo });
     return { deletedData };

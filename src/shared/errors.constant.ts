@@ -62,4 +62,9 @@ export const Errors = {
     statusCode: HttpStatus.BAD_REQUEST,
     errorCode: ErrorCodes.INVALID_COURSE_UUID,
   },
+  INVALID_TUTORIAL_OWNERSHIP: {
+    message: 'User not own this tutorial',
+    statusCode: HttpStatus.BAD_REQUEST,
+    errorCode: ErrorCodes.INVALID_TUTORIAL_OWNERSHIP,
+  },
 };
