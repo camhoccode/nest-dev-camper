@@ -25,8 +25,12 @@ export class TutorialsController {
 
   @Roles([EUserRole.admin, EUserRole.teacher])
   @Post()
-  create(@Body() createTutorialDto: CreateTutorialDto) {
-    return this.tutorialsService.create(createTutorialDto);
+  create(
+    @Body() createTutorialDto: CreateTutorialDto,
+    @Cookies('token') token: string,
+  ) {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    return this.tutorialsService.create(createTutorialDto, decoded.id);
   }
 
   @Get()

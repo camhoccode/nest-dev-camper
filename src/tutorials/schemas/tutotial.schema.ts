@@ -33,44 +33,12 @@ export class Tutorial {
   createdAt: Date;
 
   @Prop({ type: mongoose.Types.ObjectId, ref: 'categories', required: true })
-  category: mongoose.Types.ObjectId;
+  category: string;
 
   // Uncomment the following lines if you have a 'User' model
-  @Prop({ type: String, ref: 'User', required: true })
+  @Prop({ type: mongoose.Types.ObjectId, ref: 'User', required: true })
   user: string; // Replace 'User' with the actual name of your User model
 }
 
 export const TutorialSchema = SchemaFactory.createForClass(Tutorial);
-
-// static method to get avg of course tuition
-// TutorialSchema.statics.getAverageCost = async function (categoryId) {
-//   const obj = await this.aggregate([
-//     {
-//       $match: { category: categoryId },
-//     },
-//     {
-//       $group: {
-//         _id: '$categoryId',
-//         averageCost: { $avg: '$tuition' },
-//       },
-//     },
-//   ]);
-//   try {
-//     await this.model('Category').findByIdAndUpdate(categoryId, {
-//       averageCost: Math.ceil(obj[0].averageCost / 10) * 10,
-//     });
-//   } catch (error) {
-//     console.error(error);
-//   }
-// };
-
-// get average cost after saved
-// TutorialSchema.post('save', async function () {
-//   this.constructor.getAverageCost(this.category);
-// });
-// get average cost before removed
-// TutorialSchema.pre('remove', async function () {
-//   this.constructor.getAverageCost(this.category);
-// });
-
 // export const TutModel = mongoose.model('Tutorial', TutorialSchema);

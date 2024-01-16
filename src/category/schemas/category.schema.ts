@@ -96,7 +96,10 @@ export class Category extends Document {
   })
   averageRating: string;
 
-  @Prop()
+  @Prop({
+    type: String,
+    required: false,
+  })
   averageCost: number;
 
   @Prop({
