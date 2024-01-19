@@ -67,4 +67,9 @@ export const Errors = {
     statusCode: HttpStatus.BAD_REQUEST,
     errorCode: ErrorCodes.INVALID_TUTORIAL_OWNERSHIP,
   },
+  NO_FILE_INPUT: {
+    message: 'Please add a file to request',
+    statusCode: HttpStatus.BAD_REQUEST,
+    errorCode: ErrorCodes.NO_FILE_INPUT,
+  },
 };

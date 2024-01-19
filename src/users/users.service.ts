@@ -55,7 +55,7 @@ export class UsersService {
     if (!user) {
       throw new BadRequestException(Errors.INVALID_USERNAME);
     }
-    const updatedData = await this.userModel.findByIdAndDelete(idMongo);
+    await this.userModel.findByIdAndDelete(idMongo);
     return {};
   }
 

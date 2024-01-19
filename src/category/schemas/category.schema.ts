@@ -10,8 +10,8 @@ export type CatsDocument = HydratedDocument<Category>;
 
 @Schema()
 export class Category extends Document {
-  @Prop({ type: String, default: () => nanoid() })
-  _id: mongoose.Types.ObjectId;
+  // @Prop({ type: mongoose.Types.ObjectId, required: false })
+  // _id: string;
 
   @Prop({
     required: [true, 'Please add a name'],

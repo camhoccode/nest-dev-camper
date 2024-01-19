@@ -1,6 +1,7 @@
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import * as cookieParser from 'cookie-parser';
+const fileupload = require('express-fileupload');
 const mongoSanitize = require('express-mongo-sanitize');
 const helmet = require('helmet');
 const xss = require('xss-clean');
@@ -33,6 +34,8 @@ async function bootstrap() {
   });
   // Apply the rate limiting middleware to all requests.
   app.use(limiter);
+
+  app.use(fileupload());
 
   app.useGlobalPipes(new ValidationPipe());
   await app.listen(5000);

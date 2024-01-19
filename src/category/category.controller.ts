@@ -7,6 +7,7 @@ import {
   Param,
   Patch,
   Post,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 
@@ -18,6 +19,7 @@ import { EUserRole, IPagination } from 'src/shared/common.constants';
 import { CategoryService } from './category.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
+import { Request } from 'express';
 const jwt = require('jsonwebtoken');
 
 @UseGuards(AuthGuard)
@@ -58,6 +60,18 @@ export class CategoryController {
   ) {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     return this.categoryService.update(id, updateCategoryDto, decoded.id);
+  }
+
+  @Roles([EUserRole.admin, EUserRole.teacher])
+  @Patch(':id/photo')
+  uploadImage(
+    @Param('id') id: string,
+    @Cookies('token') token: string,
+    @Req() req: Request,
+  ) {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const { files }: any = req;
+    return this.categoryService.uploadImage(id, files, decoded.id);
   }
 
   @Roles([EUserRole.admin, EUserRole.teacher])
